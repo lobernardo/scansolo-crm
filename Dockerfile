@@ -24,14 +24,11 @@ WORKDIR /var/www/html
 COPY composer.json composer.lock ./
 RUN composer install --no-dev --optimize-autoloader --no-interaction --no-scripts
 
-# Dependências Node + build
-COPY package.json package-lock.json vite.config.js ./
-COPY resources ./resources
-COPY public ./public
-RUN npm ci && npm run build
-
-# Resto do app
+# Resto do app (inclui resources/, public/, vite.config.js)
 COPY . .
+
+# Build frontend — roda depois do COPY para garantir que public/build/ não seja sobrescrito
+RUN npm ci && npm run build
 
 # Permissões (config:cache movido para o startCommand — precisa das env vars de runtime)
 RUN chown -R www-data:www-data storage bootstrap/cache && \
