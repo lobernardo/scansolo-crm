@@ -4,7 +4,9 @@ use App\Http\Controllers\Api\TenantTokenController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('welcome');
+    return auth()->check()
+        ? redirect()->route('kanban.index')
+        : redirect()->route('login');
 });
 
 // Placeholder routes for navigation - will be replaced by Livewire page components in later phases
