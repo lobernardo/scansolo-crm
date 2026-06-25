@@ -3,7 +3,7 @@ builder = "DOCKERFILE"
 dockerfilePath = "Dockerfile"
 
 [deploy]
-startCommand = "php /var/www/html/artisan config:cache && php /var/www/html/artisan route:cache && php /var/www/html/artisan view:cache && php /var/www/html/artisan migrate --force && /usr/bin/supervisord -n -c /etc/supervisor/conf.d/app.conf"
+startCommand = "php /var/www/html/artisan config:cache && php /var/www/html/artisan migrate --force && /usr/bin/supervisord -n -c /etc/supervisor/conf.d/app.conf"
 restartPolicyType = "ON_FAILURE"
 restartPolicyMaxRetries = 5
 healthcheckPath = "/"
