@@ -33,7 +33,7 @@ new #[Layout('layouts.guest')] #[Title('Entrar')] class extends Component {
             return;
         }
 
-        if (auth()->user()->userStatus->name === 'Inactive') {
+        if (! auth()->user()->isActive()) {
             auth()->logout();
             $this->addError('email', 'Sua conta está inativa. Entre em contato com o administrador.');
 

@@ -17,5 +17,5 @@ it('guest layout has two-column design', function () {
 
     expect($html)
         ->toContain('lg:w-1/2')
-        ->toContain('Workshop CRM');
+        ->toContain('Lexus CRM');
 });

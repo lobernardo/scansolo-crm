@@ -1,0 +1,10 @@
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"
+
+[deploy]
+startCommand = "php /var/www/html/artisan migrate --force && /usr/bin/supervisord -n -c /etc/supervisor/conf.d/app.conf"
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 5
+healthcheckPath = "/"
+healthcheckTimeout = 300

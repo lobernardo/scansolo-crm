@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\UserRole;
 use App\Models\Role;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -17,11 +18,11 @@ class RoleFactory extends Factory
 
     public function businessOwner(): static
     {
-        return $this->state(['name' => 'Business Owner']);
+        return $this->state(['name' => UserRole::BusinessOwner->value]);
     }
 
     public function salesperson(): static
     {
-        return $this->state(['name' => 'Salesperson']);
+        return $this->state(['name' => UserRole::Salesperson->value]);
     }
 }

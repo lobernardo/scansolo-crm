@@ -20,8 +20,11 @@ it('app layout renders sidebar navigation for authenticated user', function () {
 
     expect($html)
         ->toContain('Dashboard')
-        ->toContain('Kanban')
-        ->toContain('Equipe')
+        ->toContain('Leads')
+        ->toContain('Pipeline')
+        ->toContain('Relatórios')
+        ->toContain('Projetos')
+        ->toContain('Configurações')
         ->toContain('Conteúdo principal');
 });
 

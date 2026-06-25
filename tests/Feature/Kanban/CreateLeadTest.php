@@ -30,6 +30,7 @@ it('creating a new lead creates both Lead and Deal records', function () {
         ->set('form.email', 'novo@lead.com')
         ->call('searchLead')
         ->set('form.name', 'Novo Lead')
+        ->set('form.company', 'Empresa Teste')
         ->set('form.phone', '11999999999')
         ->set('form.deal_title', 'Primeiro Negócio')
         ->set('form.deal_value', '1500.00')
@@ -40,7 +41,7 @@ it('creating a new lead creates both Lead and Deal records', function () {
     expect(Deal::where('title', 'Primeiro Negócio')->exists())->toBeTrue();
 });
 
-it('new deal appears in New Lead pipeline stage', function () {
+it('new deal appears in Novo Lead pipeline stage', function () {
     $owner = User::factory()->businessOwner()->create();
 
     Livewire::actingAs($owner)
@@ -48,12 +49,13 @@ it('new deal appears in New Lead pipeline stage', function () {
         ->set('form.email', 'novo@lead.com')
         ->call('searchLead')
         ->set('form.name', 'Novo Lead')
+        ->set('form.company', 'Empresa Teste')
         ->set('form.deal_title', 'Negócio Teste')
         ->set('form.deal_value', '500.00')
         ->call('createLead');
 
     $deal = Deal::where('title', 'Negócio Teste')->first();
-    $newLeadStage = PipelineStage::where('name', 'New Lead')->first();
+    $newLeadStage = PipelineStage::where('sort_order', 1)->first();
 
     expect($deal->pipeline_stage_id)->toBe($newLeadStage->id);
 });
@@ -66,6 +68,7 @@ it('new deal is assigned to the current user', function () {
         ->set('form.email', 'novo@lead.com')
         ->call('searchLead')
         ->set('form.name', 'Novo Lead')
+        ->set('form.company', 'Empresa Teste')
         ->set('form.deal_title', 'Meu Negócio')
         ->set('form.deal_value', '1000.00')
         ->call('createLead');
@@ -100,6 +103,7 @@ it('same email in different tenants is allowed', function () {
         ->call('searchLead')
         ->assertSet('leadFound', false)
         ->set('form.name', 'Lead Tenant 2')
+        ->set('form.company', 'Empresa Tenant 2')
         ->set('form.deal_title', 'Negócio')
         ->set('form.deal_value', '500.00')
         ->call('createLead')
@@ -116,10 +120,11 @@ it('lead fields validated for new lead', function () {
         ->set('form.email', 'novo@lead.com')
         ->call('searchLead')
         ->set('form.name', '')
+        ->set('form.company', '')
         ->set('form.deal_title', '')
         ->set('form.deal_value', '')
         ->call('createLead')
-        ->assertHasErrors(['form.name', 'form.deal_title', 'form.deal_value']);
+        ->assertHasErrors(['form.name', 'form.company', 'form.deal_title', 'form.deal_value']);
 });
 
 it('deal fields validated', function () {
@@ -130,6 +135,7 @@ it('deal fields validated', function () {
         ->set('form.email', 'novo@lead.com')
         ->call('searchLead')
         ->set('form.name', 'Lead')
+        ->set('form.company', 'Empresa')
         ->set('form.deal_title', '')
         ->set('form.deal_value', '-10')
         ->call('createLead')

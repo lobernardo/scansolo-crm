@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use App\Enums\AccountStatus;
+use App\Enums\UserRole;
 use App\Models\Role;
 use App\Models\Tenant;
 use App\Models\User;
@@ -20,8 +22,8 @@ class RegistrationService
                 'email' => $email,
                 'password' => $password,
                 'tenant_id' => $tenant->id,
-                'role_id' => Role::where('name', 'Business Owner')->first()->id,
-                'user_status_id' => UserStatus::where('name', 'Active')->first()->id,
+                'role_id' => Role::where('name', UserRole::BusinessOwner->value)->firstOrFail()->id,
+                'user_status_id' => UserStatus::where('name', AccountStatus::Active->value)->firstOrFail()->id,
             ]);
         });
     }

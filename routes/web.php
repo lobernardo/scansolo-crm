@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\TenantTokenController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -9,10 +10,17 @@ Route::get('/', function () {
 // Placeholder routes for navigation - will be replaced by Livewire page components in later phases
 Route::middleware(['auth', 'active'])->group(function () {
     Route::livewire('/dashboard', 'pages::dashboard.index')->name('dashboard.index');
+    Route::livewire('/leads', 'pages::leads.index')->name('leads.index');
     Route::livewire('/kanban', 'pages::kanban.index')->name('kanban.index');
+    Route::livewire('/agenda', 'pages::agenda.index')->name('agenda.index');
+    Route::livewire('/relatorios', 'pages::relatorios.index')->name('relatorios.index');
+    Route::livewire('/projetos', 'pages::projetos.index')->name('projetos.index');
     Route::livewire('/team', 'pages::team.index')->name('team.index');
     Route::livewire('/settings/whatsapp', 'pages::settings.whatsapp')->name('settings.whatsapp');
-    Route::redirect('/settings', '/settings/whatsapp')->name('settings.index');
+    Route::livewire('/settings/api-integration', 'pages::settings.api-integration')->name('settings.api-integration');
+    Route::redirect('/settings', '/settings/api-integration')->name('settings.index');
+
+    Route::post('/api/tenant/token', TenantTokenController::class)->name('api.tenant.token');
 
     Route::post('/logout', function () {
         auth()->logout();

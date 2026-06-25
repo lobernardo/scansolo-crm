@@ -2,26 +2,22 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\ConnectionStatus;
 use App\Models\Lead;
 use App\Models\WhatsappConnection;
 use App\Models\WhatsappConnectionStatus;
 use App\Models\WhatsappMessage;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 
 class WhatsappWebhookController extends Controller
 {
     public function __invoke(Request $request): JsonResponse
     {
-        Log::info($request->all());
         $secret = config('services.evolution_api.webhook_secret');
         if ($secret && $request->header('x-webhook-secret') !== $secret) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
-
-
-        Log::info("chegando aqui");
 
         $event = $request->input('event');
         $instanceName = $request->input('instance');
@@ -38,8 +34,6 @@ class WhatsappWebhookController extends Controller
             return response()->json(['status' => 'ok']);
         }
 
-        Log::info("chegando aqui 2");
-
         match ($event) {
             'connection.update' => $this->handleConnectionUpdate($connection, $request->input('data', [])),
             'messages.upsert' => $this->handleMessagesUpsert($connection, $request->input('data', [])),
@@ -52,12 +46,9 @@ class WhatsappWebhookController extends Controller
     private function handleConnectionUpdate(WhatsappConnection $connection, array $data): void
     {
         $state = $data['state'] ?? null;
-        $statusName = match ($state) {
-            'open' => 'Connected',
-            default => 'Disconnected',
-        };
+        $statusEnum = $state === 'open' ? ConnectionStatus::Connected : ConnectionStatus::Disconnected;
 
-        $newStatus = WhatsappConnectionStatus::where('name', $statusName)->first();
+        $newStatus = WhatsappConnectionStatus::where('name', $statusEnum->value)->first();
         if (! $newStatus) {
             return;
         }
@@ -91,7 +82,6 @@ class WhatsappWebhookController extends Controller
             ->where('tenant_id', $connection->tenant_id)
             ->where('phone', '+'.$phone)
             ->first();
-
 
         if (! $lead) {
             return;

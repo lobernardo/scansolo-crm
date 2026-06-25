@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Enums\AccountStatus;
+use App\Enums\UserRole;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -71,11 +73,16 @@ class User extends Authenticatable
 
     public function isBusinessOwner(): bool
     {
-        return $this->role->name === 'Business Owner';
+        return $this->role->name === UserRole::BusinessOwner->value;
     }
 
     public function isSalesperson(): bool
     {
-        return $this->role->name === 'Salesperson';
+        return $this->role->name === UserRole::Salesperson->value;
+    }
+
+    public function isActive(): bool
+    {
+        return $this->userStatus->name === AccountStatus::Active->value;
     }
 }

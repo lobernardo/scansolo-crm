@@ -28,7 +28,7 @@ it('can mark deal as lost with loss reason', function () {
         ->assertDispatched('dealUpdated');
 
     $deal->refresh();
-    $lostStage = PipelineStage::where('name', 'Lost')->first();
+    $lostStage = PipelineStage::where('is_terminal', true)->where('is_won', false)->first();
     expect($deal->pipeline_stage_id)->toBe($lostStage->id);
     expect($deal->loss_reason)->toBe('Cliente optou pela concorrência');
 });
@@ -80,7 +80,7 @@ it('salesperson can mark their own deal as lost', function () {
         ->call('markAsLost')
         ->assertHasNoErrors();
 
-    $lostStage = PipelineStage::where('name', 'Lost')->first();
+    $lostStage = PipelineStage::where('is_terminal', true)->where('is_won', false)->first();
     expect($deal->fresh()->pipeline_stage_id)->toBe($lostStage->id);
 });
 

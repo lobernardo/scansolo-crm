@@ -2,6 +2,9 @@
 
 namespace App\Services;
 
+use App\Enums\AccountStatus;
+use App\Enums\InvitationState;
+use App\Enums\UserRole;
 use App\Models\Invitation;
 use App\Models\InvitationStatus;
 use App\Models\Role;
@@ -29,7 +32,7 @@ class InvitationService
         $invitation = Invitation::create([
             'tenant_id' => $inviter->tenant_id,
             'invited_by_user_id' => $inviter->id,
-            'invitation_status_id' => InvitationStatus::where('name', 'Pending')->first()->id,
+            'invitation_status_id' => InvitationStatus::where('name', InvitationState::Pending->value)->firstOrFail()->id,
             'email' => $email,
             'token' => Str::random(64),
             'expires_at' => now()->addHours(72),
@@ -52,7 +55,7 @@ class InvitationService
                 throw new InvalidArgumentException('Convite inválido.');
             }
 
-            if ($invitation->invitationStatus->name !== 'Pending') {
+            if ($invitation->invitationStatus->name !== InvitationState::Pending->value) {
                 throw new InvalidArgumentException('Este convite já foi utilizado ou revogado.');
             }
 
@@ -65,12 +68,12 @@ class InvitationService
                 'email' => $invitation->email,
                 'password' => $password,
                 'tenant_id' => $invitation->tenant_id,
-                'role_id' => Role::where('name', 'Salesperson')->first()->id,
-                'user_status_id' => UserStatus::where('name', 'Active')->first()->id,
+                'role_id' => Role::where('name', UserRole::Salesperson->value)->firstOrFail()->id,
+                'user_status_id' => UserStatus::where('name', AccountStatus::Active->value)->firstOrFail()->id,
             ]);
 
             $invitation->update([
-                'invitation_status_id' => InvitationStatus::where('name', 'Accepted')->first()->id,
+                'invitation_status_id' => InvitationStatus::where('name', InvitationState::Accepted->value)->firstOrFail()->id,
             ]);
 
             return $user;
@@ -80,7 +83,7 @@ class InvitationService
     public function revoke(Invitation $invitation): void
     {
         $invitation->update([
-            'invitation_status_id' => InvitationStatus::where('name', 'Revoked')->first()->id,
+            'invitation_status_id' => InvitationStatus::where('name', InvitationState::Revoked->value)->firstOrFail()->id,
         ]);
     }
 }

@@ -12,14 +12,17 @@ class PipelineStage extends Model
 
     protected $fillable = [
         'name',
+        'slug',
         'sort_order',
         'is_terminal',
+        'is_won',
     ];
 
     protected function casts(): array
     {
         return [
             'is_terminal' => 'boolean',
+            'is_won' => 'boolean',
         ];
     }
 

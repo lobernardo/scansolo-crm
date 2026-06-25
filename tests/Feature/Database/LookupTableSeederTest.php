@@ -26,17 +26,19 @@ it('pipeline_stages table has 7 records in correct sort order', function () {
 
     $stages = DB::table('pipeline_stages')->orderBy('sort_order')->get();
 
-    expect($stages[0]->name)->toBe('New Lead')
+    expect($stages[0]->name)->toBe('Novo Lead')
         ->and($stages[0]->sort_order)->toBe(1)
         ->and($stages[0]->is_terminal)->toBeFalse();
 
-    expect($stages[5]->name)->toBe('Won')
+    expect($stages[5]->name)->toBe('Ganho')
         ->and($stages[5]->sort_order)->toBe(6)
-        ->and($stages[5]->is_terminal)->toBeTrue();
+        ->and($stages[5]->is_terminal)->toBeTrue()
+        ->and($stages[5]->is_won)->toBeTrue();
 
-    expect($stages[6]->name)->toBe('Lost')
+    expect($stages[6]->name)->toBe('Perdido')
         ->and($stages[6]->sort_order)->toBe(7)
-        ->and($stages[6]->is_terminal)->toBeTrue();
+        ->and($stages[6]->is_terminal)->toBeTrue()
+        ->and($stages[6]->is_won)->toBeFalse();
 });
 
 it('invitation_statuses table has 4 records', function () {

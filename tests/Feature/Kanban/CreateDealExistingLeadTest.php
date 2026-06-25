@@ -59,7 +59,7 @@ it('new deal for existing lead is in New Lead stage', function () {
         ->call('createLead');
 
     $deal = Deal::where('title', 'Novo Negócio')->first();
-    $newLeadStage = PipelineStage::where('name', 'New Lead')->first();
+    $newLeadStage = PipelineStage::where('sort_order', 1)->first();
 
     expect($deal->pipeline_stage_id)->toBe($newLeadStage->id);
 });

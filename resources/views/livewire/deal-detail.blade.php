@@ -15,7 +15,7 @@
                             {{ $isEditing ? 'Editar negócio' : $deal->title }}
                         </h2>
                         <div class="mt-1">
-                            <x-tag :variant="match($deal->pipelineStage->name) { 'Won' => 'green', 'Lost' => 'red', default => 'primary' }">
+                            <x-tag :variant="match(true) { $deal->pipelineStage->is_won => 'green', $deal->pipelineStage->is_terminal => 'red', default => 'primary' }">
                                 {{ $deal->pipelineStage->name }}
                             </x-tag>
                         </div>
@@ -52,6 +52,20 @@
                             <form wire:submit="saveDeal" class="space-y-4">
                                 <x-input label="Título" wire:model="editForm.title" />
                                 <x-input label="Valor (R$)" type="number" wire:model="editForm.value" step="0.01" min="0.01" />
+
+                                <x-select label="Tipo de serviço" wire:model="editForm.service_type" placeholder="Selecione">
+                                    @foreach(\App\Enums\DealServiceType::cases() as $case)
+                                        <option value="{{ $case->value }}" @selected($editForm->service_type === $case->value)>{{ $case->label() }}</option>
+                                    @endforeach
+                                </x-select>
+
+                                <div class="grid grid-cols-2 gap-4">
+                                    <x-input label="Área (m²)" type="number" wire:model="editForm.area_m2" step="0.01" min="0" placeholder="0,00" />
+                                    <x-input label="Data agendada" type="date" wire:model="editForm.scheduled_date" />
+                                </div>
+
+                                <x-textarea label="Descrição" wire:model="editForm.description" placeholder="Detalhes do serviço..." />
+
                                 <div class="flex gap-3">
                                     <x-button type="submit">Salvar</x-button>
                                     <x-button type="button" variant="outline" wire:click="cancelEditing">Cancelar</x-button>
@@ -69,17 +83,57 @@
                                         <p class="text-xs text-primary-grey">Etapa</p>
                                         <p class="text-sm font-medium text-primary-dark">{{ $deal->pipelineStage->name }}</p>
                                     </div>
+                                    @if($deal->service_type)
+                                        <div>
+                                            <p class="text-xs text-primary-grey">Tipo de serviço</p>
+                                            <p class="text-sm font-medium text-primary-dark">{{ $deal->service_type->label() }}</p>
+                                        </div>
+                                    @endif
+                                    @if($deal->area_m2)
+                                        <div>
+                                            <p class="text-xs text-primary-grey">Área</p>
+                                            <p class="text-sm font-medium text-primary-dark">{{ number_format((float) $deal->area_m2, 2, ',', '.') }} m²</p>
+                                        </div>
+                                    @endif
+                                    @if($deal->scheduled_date)
+                                        <div>
+                                            <p class="text-xs text-primary-grey">Data agendada</p>
+                                            <p class="text-sm font-medium text-primary-dark">{{ $deal->scheduled_date->format('d/m/Y') }}</p>
+                                        </div>
+                                    @endif
                                 </div>
+                                @if($deal->description)
+                                    <div>
+                                        <p class="text-xs text-primary-grey">Descrição</p>
+                                        <p class="text-sm text-primary-dark">{{ $deal->description }}</p>
+                                    </div>
+                                @endif
 
                                 {{-- Lead info --}}
                                 <div>
                                     <h3 class="mb-2 text-sm font-semibold text-primary-dark">Lead</h3>
-                                    <div class="rounded-lg bg-bg-light p-4">
+                                    <div class="rounded-lg bg-bg-light p-4 space-y-1">
                                         <p class="text-sm font-medium text-primary-dark">{{ $deal->lead->name }}</p>
-                                        <p class="mt-1 text-xs text-primary-grey">{{ $deal->lead->email }}</p>
+                                        @if($deal->lead->company)
+                                            <p class="text-xs text-primary-grey">{{ $deal->lead->company }}</p>
+                                        @endif
+                                        <p class="text-xs text-primary-grey">{{ $deal->lead->email }}</p>
                                         @if($deal->lead->phone)
                                             <p class="text-xs text-primary-grey">{{ $deal->lead->phone }}</p>
                                         @endif
+                                        @if($deal->lead->city || $deal->lead->state)
+                                            <p class="text-xs text-primary-grey">
+                                                {{ collect([$deal->lead->city, $deal->lead->state])->filter()->implode('/') }}
+                                            </p>
+                                        @endif
+                                        <div class="flex flex-wrap gap-2 pt-1">
+                                            @if($deal->lead->segment)
+                                                <x-tag variant="primary">{{ $deal->lead->segment->label() }}</x-tag>
+                                            @endif
+                                            @if($deal->lead->source)
+                                                <x-tag variant="purple">{{ $deal->lead->source->label() }}</x-tag>
+                                            @endif
+                                        </div>
                                     </div>
                                 </div>
 

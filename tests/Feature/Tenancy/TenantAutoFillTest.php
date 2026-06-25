@@ -33,7 +33,7 @@ it('creating a Deal while authenticated automatically sets tenant_id', function 
         'email' => 'deal-lead@test.com',
     ]);
 
-    $pipelineStage = \App\Models\PipelineStage::where('name', 'New Lead')->first();
+    $pipelineStage = \App\Models\PipelineStage::where('sort_order', 1)->first();
 
     $deal = \App\Models\Deal::create([
         'lead_id' => $lead->id,

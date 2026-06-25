@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Enums\LeadSegment;
+use App\Enums\LeadSource;
 use App\Traits\BelongsToTenant;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -16,9 +18,22 @@ class Lead extends Model
         'tenant_id',
         'user_id',
         'name',
+        'company',
         'email',
         'phone',
+        'city',
+        'state',
+        'segment',
+        'source',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'segment' => LeadSegment::class,
+            'source' => LeadSource::class,
+        ];
+    }
 
     public function owner(): BelongsTo
     {

@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use App\Enums\LeadSegment;
+use App\Enums\LeadSource;
 use App\Models\Deal;
 use App\Models\Lead;
 use App\Models\PipelineStage;
@@ -18,13 +20,23 @@ class LeadService
         ?string $leadPhone,
         string $dealTitle,
         string $dealValue,
+        ?string $company = null,
+        ?string $city = null,
+        ?string $state = null,
+        ?LeadSegment $segment = null,
+        ?LeadSource $source = null,
     ): Deal {
-        return DB::transaction(function () use ($owner, $leadName, $leadEmail, $leadPhone, $dealTitle, $dealValue) {
+        return DB::transaction(function () use ($owner, $leadName, $leadEmail, $leadPhone, $dealTitle, $dealValue, $company, $city, $state, $segment, $source) {
             $lead = Lead::create([
                 'user_id' => $owner->id,
                 'name' => $leadName,
+                'company' => $company,
                 'email' => $leadEmail,
                 'phone' => $leadPhone,
+                'city' => $city,
+                'state' => $state,
+                'segment' => $segment,
+                'source' => $source,
             ]);
 
             return $this->createDealForLead($lead, $owner, $dealTitle, $dealValue);
@@ -57,7 +69,7 @@ class LeadService
 
     private function createDealForLead(Lead $lead, User $owner, string $dealTitle, string $dealValue): Deal
     {
-        $newLeadStage = PipelineStage::where('name', 'New Lead')->first();
+        $newLeadStage = PipelineStage::where('is_terminal', false)->orderBy('sort_order')->firstOrFail();
 
         return Deal::create([
             'lead_id' => $lead->id,

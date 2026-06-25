@@ -35,7 +35,7 @@ it('whatsapp tab visible when tenant has connected whatsapp', function () {
 it('whatsapp tab hidden when no connection exists', function () {
     $tenant = Tenant::factory()->create();
     $owner = User::factory()->businessOwner()->for($tenant)->create();
-    $lead = Lead::factory()->create(['tenant_id' => $tenant->id, 'user_id' => $owner->id]);
+    $lead = Lead::factory()->create(['tenant_id' => $tenant->id, 'user_id' => $owner->id, 'source' => null]);
     $deal = Deal::factory()->create(['tenant_id' => $tenant->id, 'user_id' => $owner->id, 'lead_id' => $lead->id]);
 
     Livewire::actingAs($owner)

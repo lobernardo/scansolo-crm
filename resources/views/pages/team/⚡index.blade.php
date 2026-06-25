@@ -33,7 +33,7 @@ new #[Layout('layouts.app')] #[Title('Equipe')] class extends Component {
     #[Computed]
     public function pendingInvitations()
     {
-        return Invitation::whereHas('invitationStatus', fn ($q) => $q->where('name', 'Pending'))
+        return Invitation::whereHas('invitationStatus', fn ($q) => $q->where('name', \App\Enums\InvitationState::Pending->value))
             ->with('invitedBy')
             ->orderByDesc('created_at')
             ->get();
@@ -98,16 +98,16 @@ new #[Layout('layouts.app')] #[Title('Equipe')] class extends Component {
                         <td class="px-6 py-4 text-sm text-primary-grey">{{ $member->email }}</td>
                         <td class="px-6 py-4">
                             <x-tag variant="{{ $member->isBusinessOwner() ? 'purple' : 'primary' }}">
-                                {{ $member->role->name === 'Business Owner' ? 'Proprietário' : 'Vendedor' }}
+                                {{ $member->isBusinessOwner() ? 'Proprietário' : 'Vendedor' }}
                             </x-tag>
                         </td>
                         <td class="px-6 py-4">
-                            <x-tag variant="{{ $member->userStatus->name === 'Active' ? 'green' : 'red' }}">
-                                {{ $member->userStatus->name === 'Active' ? 'Ativo' : 'Inativo' }}
+                            <x-tag variant="{{ $member->isActive() ? 'green' : 'red' }}">
+                                {{ $member->isActive() ? 'Ativo' : 'Inativo' }}
                             </x-tag>
                         </td>
                         <td class="px-6 py-4 text-right">
-                            @if($member->id !== auth()->id() && $member->userStatus->name === 'Active')
+                            @if($member->id !== auth()->id() && $member->isActive())
                                 <x-button
                                     variant="danger"
                                     size="sm"

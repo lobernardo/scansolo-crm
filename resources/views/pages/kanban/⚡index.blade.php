@@ -1,5 +1,7 @@
 <?php
 
+use App\Enums\LeadSegment;
+use App\Enums\LeadSource;
 use App\Livewire\Forms\CreateLeadForm;
 use App\Models\Deal;
 use App\Models\Lead;
@@ -68,7 +70,12 @@ new #[Layout('layouts.app')] #[Title('Kanban')] class extends Component {
 
         if ($this->leadFound) {
             $this->form->name = $this->existingLead->name;
+            $this->form->company = $this->existingLead->company ?? '';
             $this->form->phone = $this->existingLead->phone ?? '';
+            $this->form->city = $this->existingLead->city ?? '';
+            $this->form->state = $this->existingLead->state ?? '';
+            $this->form->segment = $this->existingLead->segment?->value ?? '';
+            $this->form->source = $this->existingLead->source?->value ?? '';
         }
     }
 
@@ -97,6 +104,11 @@ new #[Layout('layouts.app')] #[Title('Kanban')] class extends Component {
                 leadPhone: $this->form->phone ?: null,
                 dealTitle: $this->form->deal_title,
                 dealValue: $this->form->deal_value,
+                company: $this->form->company ?: null,
+                city: $this->form->city ?: null,
+                state: $this->form->state ?: null,
+                segment: $this->form->segment ? LeadSegment::tryFrom($this->form->segment) : null,
+                source: $this->form->source ? LeadSource::tryFrom($this->form->source) : null,
             );
         }
 
@@ -290,10 +302,55 @@ new #[Layout('layouts.app')] #[Title('Kanban')] class extends Component {
                     />
 
                     <x-input
+                        label="Empresa"
+                        wire:model="form.company"
+                        placeholder="Razão social ou nome da empresa"
+                    />
+
+                    <x-input
                         label="Telefone"
                         wire:model="form.phone"
                         placeholder="(00) 00000-0000"
                     />
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <x-input
+                            label="Cidade"
+                            wire:model="form.city"
+                            placeholder="São Paulo"
+                        />
+                        <x-select
+                            label="Estado"
+                            wire:model="form.state"
+                            placeholder="UF"
+                        >
+                            @foreach(['AC','AL','AP','AM','BA','CE','DF','ES','GO','MA','MT','MS','MG','PA','PB','PR','PE','PI','RJ','RN','RS','RO','RR','SC','SP','SE','TO'] as $uf)
+                                <option value="{{ $uf }}" @selected(old('state') === $uf)>{{ $uf }}</option>
+                            @endforeach
+                        </x-select>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <x-select
+                            label="Segmento"
+                            wire:model="form.segment"
+                            placeholder="Selecione"
+                        >
+                            @foreach(\App\Enums\LeadSegment::cases() as $case)
+                                <option value="{{ $case->value }}">{{ $case->label() }}</option>
+                            @endforeach
+                        </x-select>
+
+                        <x-select
+                            label="Origem"
+                            wire:model="form.source"
+                            placeholder="Selecione"
+                        >
+                            @foreach(\App\Enums\LeadSource::cases() as $case)
+                                <option value="{{ $case->value }}">{{ $case->label() }}</option>
+                            @endforeach
+                        </x-select>
+                    </div>
                 @endif
 
                 {{-- Deal fields (always shown after search) --}}

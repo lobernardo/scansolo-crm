@@ -57,8 +57,8 @@ it('deals are grouped by pipeline stage columns', function () {
     $owner = User::factory()->businessOwner()->for($tenant)->create();
     $lead = Lead::factory()->create(['tenant_id' => $tenant->id, 'user_id' => $owner->id]);
 
-    $newLeadStage = PipelineStage::where('name', 'New Lead')->first();
-    $contactedStage = PipelineStage::where('name', 'Contacted')->first();
+    $newLeadStage = PipelineStage::where('sort_order', 1)->first();
+    $contactedStage = PipelineStage::where('sort_order', 2)->first();
 
     Deal::factory()->create(['tenant_id' => $tenant->id, 'user_id' => $owner->id, 'lead_id' => $lead->id, 'pipeline_stage_id' => $newLeadStage->id, 'title' => 'Negócio Novo']);
     Deal::factory()->create(['tenant_id' => $tenant->id, 'user_id' => $owner->id, 'lead_id' => $lead->id, 'pipeline_stage_id' => $contactedStage->id, 'title' => 'Negócio Contactado']);
@@ -98,7 +98,7 @@ it('pipeline stages are rendered in correct sort order', function () {
     $stages = $component->get('stages');
     $stageNames = $stages->pluck('name')->toArray();
 
-    expect($stageNames)->toBe(['New Lead', 'Contacted', 'Qualified', 'Proposal Sent', 'Negotiation', 'Won', 'Lost']);
+    expect($stageNames)->toBe(['Novo Lead', 'Contatado', 'Visita Técnica', 'Proposta Enviada', 'Negociação', 'Ganho', 'Perdido']);
 });
 
 it('empty board renders all columns with no cards', function () {
@@ -106,13 +106,13 @@ it('empty board renders all columns with no cards', function () {
 
     Livewire::actingAs($owner)
         ->test('pages::kanban.index')
-        ->assertSee('New Lead')
-        ->assertSee('Contacted')
-        ->assertSee('Qualified')
-        ->assertSee('Proposal Sent')
-        ->assertSee('Negotiation')
-        ->assertSee('Won')
-        ->assertSee('Lost');
+        ->assertSee('Novo Lead')
+        ->assertSee('Contatado')
+        ->assertSee('Visita Técnica')
+        ->assertSee('Proposta Enviada')
+        ->assertSee('Negociação')
+        ->assertSee('Ganho')
+        ->assertSee('Perdido');
 });
 
 it('kanban page requires authentication', function () {

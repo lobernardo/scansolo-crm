@@ -17,6 +17,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->redirectUsersTo('/kanban');
         $middleware->alias([
             'active' => EnsureUserIsActive::class,
+            'api.bearer' => \App\Http\Middleware\AuthenticateBearerToken::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

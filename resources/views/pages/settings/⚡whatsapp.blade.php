@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\ConnectionStatus;
 use App\Models\WhatsappConnection;
 use App\Models\WhatsappConnectionStatus;
 use App\Services\WhatsappService;
@@ -27,7 +28,7 @@ new #[Layout('layouts.app')] #[Title('WhatsApp')] class extends Component {
     #[Computed]
     public function isConnected(): bool
     {
-        return $this->connection?->whatsappConnectionStatus?->name === 'Connected';
+        return $this->connection?->whatsappConnectionStatus?->name === ConnectionStatus::Connected->value;
     }
 
     public function connectWhatsapp(): void
@@ -45,7 +46,7 @@ new #[Layout('layouts.app')] #[Title('WhatsApp')] class extends Component {
             if (! $connection) {
                 $result = $service->createInstance($instanceName);
 
-                $disconnectedStatus = WhatsappConnectionStatus::where('name', 'Disconnected')->firstOrFail();
+                $disconnectedStatus = WhatsappConnectionStatus::where('name', ConnectionStatus::Disconnected->value)->firstOrFail();
 
                 $connection = WhatsappConnection::create([
                     'tenant_id' => $tenant->id,
@@ -60,7 +61,6 @@ new #[Layout('layouts.app')] #[Title('WhatsApp')] class extends Component {
             $qrResponse = $service->getQrCode($connection->instance_name);
             $this->qrCodeBase64 = $qrResponse['base64'] ?? null;
         } catch (\Exception $e) {
-            dd($e);
             $this->errorMessage = 'Erro ao conectar com o WhatsApp. Tente novamente.';
         }
     }
@@ -80,8 +80,8 @@ new #[Layout('layouts.app')] #[Title('WhatsApp')] class extends Component {
 
             $state = $status['instance']['state'] ?? 'close';
 
-            $statusName = $state === 'open' ? 'Connected' : 'Disconnected';
-            $newStatus = WhatsappConnectionStatus::where('name', $statusName)->firstOrFail();
+            $statusEnum = $state === 'open' ? ConnectionStatus::Connected : ConnectionStatus::Disconnected;
+            $newStatus = WhatsappConnectionStatus::where('name', $statusEnum->value)->firstOrFail();
 
             $connection->update([
                 'whatsapp_connection_status_id' => $newStatus->id,
@@ -110,7 +110,7 @@ new #[Layout('layouts.app')] #[Title('WhatsApp')] class extends Component {
             $service = WhatsappService::make();
             $service->disconnect($connection->instance_name);
 
-            $disconnectedStatus = WhatsappConnectionStatus::where('name', 'Disconnected')->firstOrFail();
+            $disconnectedStatus = WhatsappConnectionStatus::where('name', ConnectionStatus::Disconnected->value)->firstOrFail();
 
             $connection->update([
                 'whatsapp_connection_status_id' => $disconnectedStatus->id,
@@ -126,7 +126,19 @@ new #[Layout('layouts.app')] #[Title('WhatsApp')] class extends Component {
 };
 ?>
 
-<div>
+<div class="max-w-3xl space-y-6">
+    {{-- Settings sub-nav --}}
+    <div class="flex gap-1 rounded-lg bg-bg-light p-1">
+        <a href="{{ route('settings.whatsapp') }}" wire:navigate
+           class="flex-1 rounded-md px-4 py-2 text-center text-sm font-medium transition-colors {{ request()->routeIs('settings.whatsapp') ? 'bg-bg-white shadow-sm text-primary-dark' : 'text-primary-grey hover:text-primary-dark' }}">
+            WhatsApp
+        </a>
+        <a href="{{ route('settings.api-integration') }}" wire:navigate
+           class="flex-1 rounded-md px-4 py-2 text-center text-sm font-medium text-primary-grey transition-colors hover:text-primary-dark {{ request()->routeIs('settings.api-integration') ? 'bg-bg-white shadow-sm text-primary-dark' : '' }}">
+            Integração API
+        </a>
+    </div>
+
     <h2 class="mb-6 text-lg font-semibold text-primary-dark">Configurações do WhatsApp</h2>
 
     @if($errorMessage)

@@ -14,8 +14,8 @@ it('calling handleSort updates deal pipeline_stage_id and sort_order', function 
     $owner = User::factory()->businessOwner()->for($tenant)->create();
     $lead = Lead::factory()->create(['tenant_id' => $tenant->id, 'user_id' => $owner->id]);
 
-    $newLeadStage = PipelineStage::where('name', 'New Lead')->first();
-    $contactedStage = PipelineStage::where('name', 'Contacted')->first();
+    $newLeadStage = PipelineStage::where('sort_order', 1)->first();
+    $contactedStage = PipelineStage::where('sort_order', 2)->first();
 
     $deal = Deal::factory()->create([
         'tenant_id' => $tenant->id,
@@ -40,8 +40,8 @@ it('moving deal to Lost stage requires loss_reason', function () {
     $owner = User::factory()->businessOwner()->for($tenant)->create();
     $lead = Lead::factory()->create(['tenant_id' => $tenant->id, 'user_id' => $owner->id]);
 
-    $newLeadStage = PipelineStage::where('name', 'New Lead')->first();
-    $lostStage = PipelineStage::where('name', 'Lost')->first();
+    $newLeadStage = PipelineStage::where('sort_order', 1)->first();
+    $lostStage = PipelineStage::where('is_terminal', true)->where('is_won', false)->first();
 
     $deal = Deal::factory()->create([
         'tenant_id' => $tenant->id,
@@ -65,8 +65,8 @@ it('can confirm loss reason and move to Lost stage', function () {
     $owner = User::factory()->businessOwner()->for($tenant)->create();
     $lead = Lead::factory()->create(['tenant_id' => $tenant->id, 'user_id' => $owner->id]);
 
-    $newLeadStage = PipelineStage::where('name', 'New Lead')->first();
-    $lostStage = PipelineStage::where('name', 'Lost')->first();
+    $newLeadStage = PipelineStage::where('sort_order', 1)->first();
+    $lostStage = PipelineStage::where('is_terminal', true)->where('is_won', false)->first();
 
     $deal = Deal::factory()->create([
         'tenant_id' => $tenant->id,
@@ -92,8 +92,8 @@ it('loss reason validation fails when empty', function () {
     $owner = User::factory()->businessOwner()->for($tenant)->create();
     $lead = Lead::factory()->create(['tenant_id' => $tenant->id, 'user_id' => $owner->id]);
 
-    $newLeadStage = PipelineStage::where('name', 'New Lead')->first();
-    $lostStage = PipelineStage::where('name', 'Lost')->first();
+    $newLeadStage = PipelineStage::where('sort_order', 1)->first();
+    $lostStage = PipelineStage::where('is_terminal', true)->where('is_won', false)->first();
 
     $deal = Deal::factory()->create([
         'tenant_id' => $tenant->id,
@@ -116,8 +116,8 @@ it('salesperson can move their own deals', function () {
     $salesperson = User::factory()->salesperson()->for($tenant)->create();
     $lead = Lead::factory()->create(['tenant_id' => $tenant->id, 'user_id' => $salesperson->id]);
 
-    $newLeadStage = PipelineStage::where('name', 'New Lead')->first();
-    $contactedStage = PipelineStage::where('name', 'Contacted')->first();
+    $newLeadStage = PipelineStage::where('sort_order', 1)->first();
+    $contactedStage = PipelineStage::where('sort_order', 2)->first();
 
     $deal = Deal::factory()->create([
         'tenant_id' => $tenant->id,
@@ -141,8 +141,8 @@ it('salesperson cannot move another user deals', function () {
     $salesperson = User::factory()->salesperson()->for($tenant)->create();
     $lead = Lead::factory()->create(['tenant_id' => $tenant->id, 'user_id' => $owner->id]);
 
-    $newLeadStage = PipelineStage::where('name', 'New Lead')->first();
-    $contactedStage = PipelineStage::where('name', 'Contacted')->first();
+    $newLeadStage = PipelineStage::where('sort_order', 1)->first();
+    $contactedStage = PipelineStage::where('sort_order', 2)->first();
 
     $deal = Deal::factory()->create([
         'tenant_id' => $tenant->id,
@@ -163,8 +163,8 @@ it('business owner can move any deal', function () {
     $salesperson = User::factory()->salesperson()->for($tenant)->create();
     $lead = Lead::factory()->create(['tenant_id' => $tenant->id, 'user_id' => $salesperson->id]);
 
-    $newLeadStage = PipelineStage::where('name', 'New Lead')->first();
-    $contactedStage = PipelineStage::where('name', 'Contacted')->first();
+    $newLeadStage = PipelineStage::where('sort_order', 1)->first();
+    $contactedStage = PipelineStage::where('sort_order', 2)->first();
 
     $deal = Deal::factory()->create([
         'tenant_id' => $tenant->id,
@@ -187,7 +187,7 @@ it('sort order is recalculated correctly within a column', function () {
     $owner = User::factory()->businessOwner()->for($tenant)->create();
     $lead = Lead::factory()->create(['tenant_id' => $tenant->id, 'user_id' => $owner->id]);
 
-    $contactedStage = PipelineStage::where('name', 'Contacted')->first();
+    $contactedStage = PipelineStage::where('sort_order', 2)->first();
 
     $deal1 = Deal::factory()->create([
         'tenant_id' => $tenant->id,
@@ -205,7 +205,7 @@ it('sort order is recalculated correctly within a column', function () {
         'sort_order' => 1,
     ]);
 
-    $newLeadStage = PipelineStage::where('name', 'New Lead')->first();
+    $newLeadStage = PipelineStage::where('sort_order', 1)->first();
     $deal3 = Deal::factory()->create([
         'tenant_id' => $tenant->id,
         'user_id' => $owner->id,

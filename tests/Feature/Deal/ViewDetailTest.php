@@ -96,7 +96,7 @@ it('deal detail displays all required fields', function () {
         ->dispatch('openDealDetail', dealId: $deal->id)
         ->assertSee('Grande Proposta')
         ->assertSee('15.000,00')
-        ->assertSee('New Lead')
+        ->assertSee('Novo Lead')
         ->assertSee('Maria Lead')
         ->assertSee('maria@test.com')
         ->assertSee('11888888888')

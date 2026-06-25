@@ -13,8 +13,23 @@ class CreateLeadForm extends Form
     #[Validate('required|min:2', as: 'nome')]
     public string $name = '';
 
+    #[Validate('required|min:2', as: 'empresa')]
+    public string $company = '';
+
     #[Validate('nullable', as: 'telefone')]
     public string $phone = '';
+
+    #[Validate('nullable|max:100', as: 'cidade')]
+    public string $city = '';
+
+    #[Validate('nullable|size:2', as: 'estado')]
+    public string $state = '';
+
+    #[Validate('nullable', as: 'segmento')]
+    public string $segment = '';
+
+    #[Validate('nullable', as: 'origem')]
+    public string $source = '';
 
     #[Validate('required|min:2', as: 'título do negócio')]
     public string $deal_title = '';

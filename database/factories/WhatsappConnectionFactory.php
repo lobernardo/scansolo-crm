@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\ConnectionStatus;
 use App\Models\Tenant;
 use App\Models\WhatsappConnection;
 use App\Models\WhatsappConnectionStatus;
@@ -14,7 +15,7 @@ class WhatsappConnectionFactory extends Factory
     {
         return [
             'tenant_id' => Tenant::factory(),
-            'whatsapp_connection_status_id' => fn () => WhatsappConnectionStatus::where('name', 'Disconnected')->first()?->id ?? WhatsappConnectionStatus::factory()->create(['name' => 'Disconnected'])->id,
+            'whatsapp_connection_status_id' => fn () => WhatsappConnectionStatus::where('name', ConnectionStatus::Disconnected->value)->first()?->id ?? WhatsappConnectionStatus::factory()->create(['name' => ConnectionStatus::Disconnected->value])->id,
             'instance_name' => null,
             'instance_id' => null,
             'phone_number' => null,
@@ -24,7 +25,7 @@ class WhatsappConnectionFactory extends Factory
     public function connected(): static
     {
         return $this->state(fn () => [
-            'whatsapp_connection_status_id' => fn () => WhatsappConnectionStatus::where('name', 'Connected')->first()?->id ?? WhatsappConnectionStatus::factory()->create(['name' => 'Connected'])->id,
+            'whatsapp_connection_status_id' => fn () => WhatsappConnectionStatus::where('name', ConnectionStatus::Connected->value)->first()?->id ?? WhatsappConnectionStatus::factory()->create(['name' => ConnectionStatus::Connected->value])->id,
             'instance_name' => fake()->slug(2),
             'instance_id' => fake()->uuid(),
             'phone_number' => fake()->phoneNumber(),

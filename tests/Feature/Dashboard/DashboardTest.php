@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\DealServiceType;
 use App\Models\Deal;
 use App\Models\Lead;
 use App\Models\PipelineStage;
@@ -40,13 +41,11 @@ it('dashboard displays correct active deals count', function () {
     $owner = User::factory()->businessOwner()->for($tenant)->create();
     $lead = Lead::factory()->create(['tenant_id' => $tenant->id, 'user_id' => $owner->id]);
 
-    $newLeadStage = PipelineStage::where('name', 'New Lead')->first();
-    $wonStage = PipelineStage::where('name', 'Won')->first();
-    $lostStage = PipelineStage::where('name', 'Lost')->first();
+    $activeStage = PipelineStage::where('is_terminal', false)->orderBy('sort_order')->first();
 
-    Deal::factory()->count(2)->create(['tenant_id' => $tenant->id, 'user_id' => $owner->id, 'lead_id' => $lead->id, 'pipeline_stage_id' => $newLeadStage->id]);
-    Deal::factory()->create(['tenant_id' => $tenant->id, 'user_id' => $owner->id, 'lead_id' => $lead->id, 'pipeline_stage_id' => $wonStage->id]);
-    Deal::factory()->create(['tenant_id' => $tenant->id, 'user_id' => $owner->id, 'lead_id' => $lead->id, 'pipeline_stage_id' => $lostStage->id, 'loss_reason' => 'Teste']);
+    Deal::factory()->count(2)->create(['tenant_id' => $tenant->id, 'user_id' => $owner->id, 'lead_id' => $lead->id, 'pipeline_stage_id' => $activeStage->id]);
+    Deal::factory()->won()->create(['tenant_id' => $tenant->id, 'user_id' => $owner->id, 'lead_id' => $lead->id]);
+    Deal::factory()->lost('Teste')->create(['tenant_id' => $tenant->id, 'user_id' => $owner->id, 'lead_id' => $lead->id]);
 
     $component = Livewire::actingAs($owner)->test('pages::dashboard.index');
     expect($component->get('activeDeals'))->toBe(2);
@@ -90,4 +89,79 @@ it('data is scoped to current tenant', function () {
 
     $component = Livewire::actingAs($owner1)->test('pages::dashboard.index');
     expect($component->get('totalLeads'))->toBe(3);
+});
+
+it('dashboard computes conversion rate correctly', function () {
+    $tenant = Tenant::factory()->create();
+    $owner = User::factory()->businessOwner()->for($tenant)->create();
+    $lead = Lead::factory()->create(['tenant_id' => $tenant->id, 'user_id' => $owner->id]);
+
+    Deal::factory()->won()->count(3)->create(['tenant_id' => $tenant->id, 'user_id' => $owner->id, 'lead_id' => $lead->id]);
+    Deal::factory()->lost('x')->count(1)->create(['tenant_id' => $tenant->id, 'user_id' => $owner->id, 'lead_id' => $lead->id]);
+
+    $component = Livewire::actingAs($owner)->test('pages::dashboard.index');
+    expect($component->get('conversionRate'))->toBe(75.0);
+});
+
+it('dashboard shows zero conversion rate when no terminal deals', function () {
+    $tenant = Tenant::factory()->create();
+    $owner = User::factory()->businessOwner()->for($tenant)->create();
+
+    $component = Livewire::actingAs($owner)->test('pages::dashboard.index');
+    expect($component->get('conversionRate'))->toBe(0.0);
+});
+
+it('dashboard sums area from won deals only', function () {
+    $tenant = Tenant::factory()->create();
+    $owner = User::factory()->businessOwner()->for($tenant)->create();
+    $lead = Lead::factory()->create(['tenant_id' => $tenant->id, 'user_id' => $owner->id]);
+
+    Deal::factory()->won()->create(['tenant_id' => $tenant->id, 'user_id' => $owner->id, 'lead_id' => $lead->id, 'area_m2' => 1000]);
+    Deal::factory()->won()->create(['tenant_id' => $tenant->id, 'user_id' => $owner->id, 'lead_id' => $lead->id, 'area_m2' => 500]);
+    Deal::factory()->create(['tenant_id' => $tenant->id, 'user_id' => $owner->id, 'lead_id' => $lead->id, 'area_m2' => 9999]);
+
+    $component = Livewire::actingAs($owner)->test('pages::dashboard.index');
+    expect($component->get('totalAreaMapped'))->toBe(1500.0);
+});
+
+it('dashboard counts future scheduled services', function () {
+    $tenant = Tenant::factory()->create();
+    $owner = User::factory()->businessOwner()->for($tenant)->create();
+    $lead = Lead::factory()->create(['tenant_id' => $tenant->id, 'user_id' => $owner->id]);
+    $activeStage = PipelineStage::where('is_terminal', false)->orderBy('sort_order')->first();
+
+    Deal::factory()->create(['tenant_id' => $tenant->id, 'user_id' => $owner->id, 'lead_id' => $lead->id, 'pipeline_stage_id' => $activeStage->id, 'scheduled_date' => now()->addDays(5)]);
+    Deal::factory()->create(['tenant_id' => $tenant->id, 'user_id' => $owner->id, 'lead_id' => $lead->id, 'pipeline_stage_id' => $activeStage->id, 'scheduled_date' => now()->subDay()]);
+    Deal::factory()->create(['tenant_id' => $tenant->id, 'user_id' => $owner->id, 'lead_id' => $lead->id, 'pipeline_stage_id' => $activeStage->id, 'scheduled_date' => null]);
+
+    $component = Livewire::actingAs($owner)->test('pages::dashboard.index');
+    expect($component->get('scheduledServicesCount'))->toBe(1);
+});
+
+it('dashboard groups deals by pipeline stage', function () {
+    $tenant = Tenant::factory()->create();
+    $owner = User::factory()->businessOwner()->for($tenant)->create();
+    $lead = Lead::factory()->create(['tenant_id' => $tenant->id, 'user_id' => $owner->id]);
+    $firstStage = PipelineStage::where('sort_order', 1)->first();
+
+    Deal::factory()->count(3)->create(['tenant_id' => $tenant->id, 'user_id' => $owner->id, 'lead_id' => $lead->id, 'pipeline_stage_id' => $firstStage->id]);
+
+    $component = Livewire::actingAs($owner)->test('pages::dashboard.index');
+    $byStage = $component->get('dealsByStage');
+    $novoLead = collect($byStage)->firstWhere('name', 'Novo Lead');
+
+    expect($novoLead['count'])->toBe(3);
+});
+
+it('dashboard identifies top service type', function () {
+    $tenant = Tenant::factory()->create();
+    $owner = User::factory()->businessOwner()->for($tenant)->create();
+    $lead = Lead::factory()->create(['tenant_id' => $tenant->id, 'user_id' => $owner->id]);
+    $activeStage = PipelineStage::where('is_terminal', false)->orderBy('sort_order')->first();
+
+    Deal::factory()->count(3)->create(['tenant_id' => $tenant->id, 'user_id' => $owner->id, 'lead_id' => $lead->id, 'pipeline_stage_id' => $activeStage->id, 'service_type' => DealServiceType::MapeamentoGpr]);
+    Deal::factory()->count(1)->create(['tenant_id' => $tenant->id, 'user_id' => $owner->id, 'lead_id' => $lead->id, 'pipeline_stage_id' => $activeStage->id, 'service_type' => DealServiceType::Batimetria]);
+
+    $component = Livewire::actingAs($owner)->test('pages::dashboard.index');
+    expect($component->get('topServiceType'))->toBe('Mapeamento GPR');
 });

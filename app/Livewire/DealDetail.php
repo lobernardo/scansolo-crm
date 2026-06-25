@@ -2,6 +2,9 @@
 
 namespace App\Livewire;
 
+use App\Enums\AccountStatus;
+use App\Enums\ConnectionStatus;
+use App\Enums\UserRole;
 use App\Livewire\Forms\EditDealForm;
 use App\Models\Deal;
 use App\Models\DealNote;
@@ -66,14 +69,14 @@ class DealDetail extends Component
             return false;
         }
 
-        return $connection->whatsappConnectionStatus->name === 'Connected';
+        return $connection->whatsappConnectionStatus->name === ConnectionStatus::Connected->value;
     }
 
     #[Computed]
     public function salespersons()
     {
-        $activeStatus = UserStatus::where('name', 'Active')->first();
-        $spRole = Role::where('name', 'Salesperson')->first();
+        $activeStatus = UserStatus::where('name', AccountStatus::Active->value)->firstOrFail();
+        $spRole = Role::where('name', UserRole::Salesperson->value)->firstOrFail();
 
         return User::where('tenant_id', auth()->user()->tenant_id)
             ->where('user_status_id', $activeStatus->id)
@@ -95,6 +98,10 @@ class DealDetail extends Component
         $this->authorize('view', $deal);
         $this->editForm->title = $deal->title;
         $this->editForm->value = (string) $deal->value;
+        $this->editForm->service_type = $deal->service_type?->value ?? '';
+        $this->editForm->area_m2 = $deal->area_m2 ? (string) $deal->area_m2 : '';
+        $this->editForm->scheduled_date = $deal->scheduled_date?->format('Y-m-d') ?? '';
+        $this->editForm->description = $deal->description ?? '';
         $this->showSlideOver = true;
         $this->activeTab = 'details';
         $this->isEditing = false;
@@ -130,6 +137,10 @@ class DealDetail extends Component
         $deal->update([
             'title' => $this->editForm->title,
             'value' => $this->editForm->value,
+            'service_type' => $this->editForm->service_type ?: null,
+            'area_m2' => $this->editForm->area_m2 ?: null,
+            'scheduled_date' => $this->editForm->scheduled_date ?: null,
+            'description' => $this->editForm->description ?: null,
         ]);
 
         unset($this->deal);
@@ -139,8 +150,13 @@ class DealDetail extends Component
 
     public function cancelEditing(): void
     {
-        $this->editForm->title = $this->deal->title;
-        $this->editForm->value = (string) $this->deal->value;
+        $deal = $this->deal;
+        $this->editForm->title = $deal->title;
+        $this->editForm->value = (string) $deal->value;
+        $this->editForm->service_type = $deal->service_type?->value ?? '';
+        $this->editForm->area_m2 = $deal->area_m2 ? (string) $deal->area_m2 : '';
+        $this->editForm->scheduled_date = $deal->scheduled_date?->format('Y-m-d') ?? '';
+        $this->editForm->description = $deal->description ?? '';
         $this->isEditing = false;
     }
 

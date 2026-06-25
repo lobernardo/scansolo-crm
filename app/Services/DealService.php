@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\UserRole;
 use App\Models\Deal;
 use App\Models\PipelineStage;
 use App\Models\Role;
@@ -32,7 +33,7 @@ class DealService
 
     public function markAsWon(Deal $deal): void
     {
-        $wonStage = PipelineStage::where('name', 'Won')->firstOrFail();
+        $wonStage = PipelineStage::where('is_won', true)->firstOrFail();
         $deal->update(['pipeline_stage_id' => $wonStage->id]);
 
         $deal->load(['lead', 'owner']);
@@ -41,7 +42,7 @@ class DealService
 
     public function markAsLost(Deal $deal, string $lossReason): void
     {
-        $lostStage = PipelineStage::where('name', 'Lost')->firstOrFail();
+        $lostStage = PipelineStage::where('is_terminal', true)->where('is_won', false)->firstOrFail();
         $deal->update([
             'pipeline_stage_id' => $lostStage->id,
             'loss_reason' => $lossReason,
@@ -63,7 +64,7 @@ class DealService
 
     public function requiresLossReason(int $stageId): bool
     {
-        return PipelineStage::where('id', $stageId)->where('name', 'Lost')->exists();
+        return PipelineStage::where('id', $stageId)->where('is_terminal', true)->where('is_won', false)->exists();
     }
 
     private function recalculateSortOrder(int $stageId, int $movedDealId, int $targetPosition): void
@@ -98,7 +99,7 @@ class DealService
 
     private function notifyBusinessOwners(Deal $deal, string $outcome): void
     {
-        $boRole = Role::where('name', 'Business Owner')->first();
+        $boRole = Role::where('name', UserRole::BusinessOwner->value)->firstOrFail();
 
         $businessOwners = User::where('tenant_id', $deal->tenant_id)
             ->where('role_id', $boRole->id)

@@ -26,7 +26,7 @@ it('can mark deal as won', function () {
         ->assertDispatched('dealUpdated');
 
     $deal->refresh();
-    $wonStage = PipelineStage::where('name', 'Won')->first();
+    $wonStage = PipelineStage::where('is_won', true)->first();
     expect($deal->pipeline_stage_id)->toBe($wonStage->id);
 });
 
@@ -45,7 +45,7 @@ it('salesperson can mark their own deal as won', function () {
         ->call('markAsWon')
         ->assertDispatched('dealUpdated');
 
-    $wonStage = PipelineStage::where('name', 'Won')->first();
+    $wonStage = PipelineStage::where('is_won', true)->first();
     expect($deal->fresh()->pipeline_stage_id)->toBe($wonStage->id);
 });
 
@@ -64,7 +64,7 @@ it('business owner can mark any deal as won', function () {
         ->call('markAsWon')
         ->assertDispatched('dealUpdated');
 
-    $wonStage = PipelineStage::where('name', 'Won')->first();
+    $wonStage = PipelineStage::where('is_won', true)->first();
     expect($deal->fresh()->pipeline_stage_id)->toBe($wonStage->id);
 });
 

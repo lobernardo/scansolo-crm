@@ -10,18 +10,18 @@ class PipelineStageSeeder extends Seeder
     public function run(): void
     {
         $stages = [
-            ['name' => 'New Lead', 'sort_order' => 1, 'is_terminal' => false],
-            ['name' => 'Contacted', 'sort_order' => 2, 'is_terminal' => false],
-            ['name' => 'Qualified', 'sort_order' => 3, 'is_terminal' => false],
-            ['name' => 'Proposal Sent', 'sort_order' => 4, 'is_terminal' => false],
-            ['name' => 'Negotiation', 'sort_order' => 5, 'is_terminal' => false],
-            ['name' => 'Won', 'sort_order' => 6, 'is_terminal' => true],
-            ['name' => 'Lost', 'sort_order' => 7, 'is_terminal' => true],
+            ['name' => 'Novo Lead', 'slug' => 'novo_lead', 'sort_order' => 1, 'is_terminal' => false, 'is_won' => false],
+            ['name' => 'Contatado', 'slug' => 'contatado', 'sort_order' => 2, 'is_terminal' => false, 'is_won' => false],
+            ['name' => 'Visita Técnica', 'slug' => 'visita_tecnica', 'sort_order' => 3, 'is_terminal' => false, 'is_won' => false],
+            ['name' => 'Proposta Enviada', 'slug' => 'proposta_enviada', 'sort_order' => 4, 'is_terminal' => false, 'is_won' => false],
+            ['name' => 'Negociação', 'slug' => 'negociacao', 'sort_order' => 5, 'is_terminal' => false, 'is_won' => false],
+            ['name' => 'Ganho', 'slug' => 'ganho', 'sort_order' => 6, 'is_terminal' => true, 'is_won' => true],
+            ['name' => 'Perdido', 'slug' => 'perdido', 'sort_order' => 7, 'is_terminal' => true, 'is_won' => false],
         ];
 
         foreach ($stages as $stage) {
             DB::table('pipeline_stages')->updateOrInsert(
-                ['name' => $stage['name']],
+                ['sort_order' => $stage['sort_order']],
                 [...$stage, 'created_at' => now(), 'updated_at' => now()]
             );
         }
