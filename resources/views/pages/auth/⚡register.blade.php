@@ -29,13 +29,10 @@ new #[Layout('layouts.guest')] #[Title('Criar conta')] class extends Component {
 
 <div>
     <h1 class="text-2xl font-bold text-primary-dark">
-        Bem-vindo ao nosso CRM.
+        Crie sua conta ScanSOLO.
     </h1>
-    <p class="mt-1 text-2xl font-bold text-primary-dark">
-        Crie sua conta para começar.
-    </p>
     <p class="mt-2 text-sm text-primary-grey">
-        Preencha seus dados para continuar
+        Preencha seus dados para começar.
     </p>
 
     <form wire:submit="register" class="mt-8 space-y-5">

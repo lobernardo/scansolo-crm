@@ -50,13 +50,10 @@ new #[Layout('layouts.guest')] #[Title('Entrar')] class extends Component {
 
 <div>
     <h1 class="text-2xl font-bold text-primary-dark">
-        Bem-vindo de volta.
+        Bem-vindo ao ScanSOLO CRM.
     </h1>
-    <p class="mt-1 text-2xl font-bold text-primary-dark">
-        Acesse sua conta.
-    </p>
     <p class="mt-2 text-sm text-primary-grey">
-        Preencha seus dados para continuar
+        Entre com suas credenciais para continuar.
     </p>
 
     @session('status')
