@@ -33,12 +33,7 @@ RUN npm ci && npm run build
 # Resto do app
 COPY . .
 
-# Otimizações Laravel
-RUN php artisan config:cache && \
-    php artisan route:cache && \
-    php artisan view:cache
-
-# Permissões
+# Permissões (config:cache movido para o startCommand — precisa das env vars de runtime)
 RUN chown -R www-data:www-data storage bootstrap/cache && \
     chmod -R 775 storage bootstrap/cache
 
