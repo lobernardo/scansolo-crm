@@ -40,10 +40,12 @@ RUN chown -R www-data:www-data storage bootstrap/cache && \
 # Configs nginx e supervisor
 COPY docker/nginx.conf /etc/nginx/sites-available/default
 COPY docker/supervisord.conf /etc/supervisor/conf.d/app.conf
+COPY docker/start.sh /start.sh
 
 RUN rm -f /etc/nginx/sites-enabled/default && \
-    ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
+    ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default && \
+    chmod +x /start.sh
 
 EXPOSE 80
 
-CMD ["/usr/bin/supervisord", "-n", "-c", "/etc/supervisor/conf.d/app.conf"]
+CMD ["/start.sh"]
