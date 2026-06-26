@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\DealByEmailStageController;
 use App\Http\Controllers\Api\DealNoteController;
 use App\Http\Controllers\Api\DealStageController;
 use App\Http\Controllers\Api\InboundLeadController;
@@ -10,6 +11,7 @@ Route::post('/webhook/whatsapp', WhatsappWebhookController::class)->name('webhoo
 
 Route::middleware('api.bearer')->group(function () {
     Route::post('/leads/inbound', InboundLeadController::class)->name('api.leads.inbound');
+    Route::patch('/deals/by-email/stage', DealByEmailStageController::class)->name('api.deals.by-email.stage');
     Route::patch('/deals/{deal}/stage', DealStageController::class)->name('api.deals.stage');
     Route::post('/deals/{deal}/notes', DealNoteController::class)->name('api.deals.notes');
 });

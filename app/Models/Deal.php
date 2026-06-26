@@ -26,6 +26,9 @@ class Deal extends Model
         'description',
         'loss_reason',
         'sort_order',
+        'followup_1_sent_at',
+        'followup_2_sent_at',
+        'followup_3_sent_at',
     ];
 
     protected function casts(): array
@@ -35,6 +38,9 @@ class Deal extends Model
             'area_m2' => 'decimal:2',
             'scheduled_date' => 'date',
             'service_type' => DealServiceType::class,
+            'followup_1_sent_at' => 'datetime',
+            'followup_2_sent_at' => 'datetime',
+            'followup_3_sent_at' => 'datetime',
         ];
     }
 
