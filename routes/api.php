@@ -3,11 +3,13 @@
 use App\Http\Controllers\Api\DealByEmailStageController;
 use App\Http\Controllers\Api\DealNoteController;
 use App\Http\Controllers\Api\DealStageController;
+use App\Http\Controllers\Api\GptmakerTransferController;
 use App\Http\Controllers\Api\InboundLeadController;
 use App\Http\Controllers\WhatsappWebhookController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/webhook/whatsapp', WhatsappWebhookController::class)->name('webhook.whatsapp');
+Route::post('/gptmaker/transfer', GptmakerTransferController::class)->name('gptmaker.transfer');
 
 Route::middleware('api.bearer')->group(function () {
     Route::post('/leads/inbound', InboundLeadController::class)->name('api.leads.inbound');
